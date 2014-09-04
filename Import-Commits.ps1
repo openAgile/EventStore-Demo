@@ -52,7 +52,11 @@ function Get-NextLink {
 }
 
 function Invoke-PullAndPushEvents {
-    $url = "https://api.github.com/repos/kunzimariano/CommitService.DemoRepo/commits?access_token=$accessToken&page=1&per_page=100"
+    $url = "https://api.github.com/repos/kunzimariano/CommitService.DemoRepo/commits?per_page=100&page=1"
+
+    if($accessToken -ne $null){
+        $url += "&access_token=$accessToken"
+    }
 
     do {
         $response = Invoke-WebRequest -Uri $url
@@ -77,5 +81,5 @@ function Invoke-PullAndPushEvents {
 
     } while($url -ne $null)
 }
-#$accessToken = '309bf819b8a82346f5b6b857960f883470442bc7'
+
 Invoke-PullAndPushEvents
