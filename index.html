@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
+
+		<style type="text/css">
+			.message {
+				background-color: lightgray;
+				font-weight: bold;
+			}
+		 </style>
+
+		<meta charset="utf-8">
+	    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+	    <meta name="viewport" content="width=device-width, initial-scale=1">
+ 		<title>Commit Stream</title>
+	</head>
+  	<body>
+  		<div class="container">
+  			<div class="row">
+				<h1>Commit Stream</h1>
+				<script id="githubCommit-template" type="text/x-handlebars-template">
+					<div class="">
+						<h2>GitHub Commits</h2>
+				  		{{#each commits}}
+				  		<hr />
+					  	<p>{{timeFormatted}}, {{author}} {{action}} <a href="{{commitHref}}" target="_blank">{{sha1Partial}}</a></p>
+					  	<p ><span class="message">{{message}}</span></p>
+					  	{{/each}}
+				  	</div>
+				</script>
+			</div>
+		</div>
+	</body>
+</html>
+
+<script  src="http://code.jquery.com/jquery-2.1.1.min.js"></script>
+<script type="text/javascript" src="http://www.fsfoo.com/js/vendor/handlebars-1.0.rc.2.js"></script>
+<!-- Latest compiled and minified JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/moment.js/2.8.2/moment.min.js"></script>
+
+<script type="text/javascript" src="./commitStream.js"></script>
+
+<script type="text/javascript">
+	var source = $("#githubCommit-template").html(); 
+	var template = Handlebars.compile(source); 
+
+	var url = 'http://localhost:2113/streams/github-events/head/backward/5?embed=content';
+    var commits = [];
+    $.getJSON(url).done(function(events) {
+	    $.each(events.entries, function(index, value) {
+	        var e = value.content.data;
+
+	        var c = {
+	            timeFormatted: moment(e.commit.committer.date).fromNow(),
+	            author: e.commit.committer.name,
+	            sha1Partial: e.commit.tree.sha.substring(0,6),
+	            action: "committed",
+	            message: e.commit.message,
+	            commitHref: e.html_url
+	        }
+
+	        commits.push(c);
+
+	    });
+	    var data = { 
+	    commits: commits
+		}; 
+		$('body').append(template(data));
+    });
+
+	
+</script>
