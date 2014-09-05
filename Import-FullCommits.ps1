@@ -1,9 +1,12 @@
-﻿param($accessToken)
+param($accessToken)
 
 . .\helpers.ps1
 
-function Import-Commits {
-    $url = "https://api.github.com/repos/kunzimariano/CommitService.DemoRepo/commits?per_page=100&page=1"
+$repoUrl = "https://api.github.com/repos/kunzimariano/CommitService.DemoRepo"
+
+
+function Import-FullCommits {
+    $url = "$repoUrl/commits?per_page=100&page=1"
 
     if($accessToken -ne $null){
         $url += "&access_token=$accessToken"
@@ -17,6 +20,7 @@ function Import-Commits {
         $auth = Get-AuthorizationHeader
 
         $ghEvents = ConvertFrom-Json $response.Content
+        $links Get-CommitsLinks $ghEvents
         $esEvents = Get-JsonEvents $ghEvents
 
         $headers = @{
@@ -33,4 +37,4 @@ function Import-Commits {
     } while($url -ne $null)
 }
 
-Import-Commits
+Import-FullCommits
