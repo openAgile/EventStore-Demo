@@ -3,7 +3,7 @@
 . .\helpers.ps1
 
 $repoUrl = "https://api.github.com/repos/kunzimariano/CommitService.DemoRepo"
-$eventStore = 'http://127.0.0.1:2113/streams/github-events'
+$eventStore = 'http://127.0.0.1:2113'
 
 function Get-CommitsLinks {
     $currentUrl = "$repoUrl/commits?per_page=100&page=1"
@@ -47,6 +47,7 @@ function Import-FullCommits {
         "Content-Length" =  $esEvents.Length;
         "Authorization" = $auth
     }
+    $eventstore += '/streams/github-events'
     Invoke-WebRequest -Body $events -Uri $eventStore -Method Post -Headers $headers
 
 }

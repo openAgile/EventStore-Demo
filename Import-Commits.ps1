@@ -4,7 +4,7 @@
 
 function Import-Commits {
     $url = "https://api.github.com/repos/kunzimariano/CommitService.DemoRepo/commits?per_page=100&page=1"
-    $eventStore = 'http://127.0.0.1:2113/streams/github-events'
+    $eventStore = 'http://127.0.0.1:2113'
 
     if($accessToken -ne $null){
         $url += "&access_token=$accessToken"
@@ -15,6 +15,7 @@ function Import-Commits {
 
         $ghEvents = ConvertFrom-Json $response.Content
         $esEvents = Get-EStoreEvents $ghEvents
+        $auth = Get-AuthorizationHeader
 
         $headers = @{
             "Accept" =  "application/json";
@@ -23,7 +24,8 @@ function Import-Commits {
             "Authorization" = $auth
         }
 
-        $auth = Get-AuthorizationHeader
+        $eventstore += '/streams/github-events'
+        
         Invoke-WebRequest -Body $esEvents -Uri $eventStore -Method Post -Headers $headers
 
         $url = Get-NextLink $response.Headers
