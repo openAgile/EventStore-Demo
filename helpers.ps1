@@ -23,7 +23,6 @@ function Get-EStoreEvents {
 function Get-EsCommitEvent {
     param($commit)
 
-    $result = @()
     $guid = ([guid]::NewGuid()).ToString()
     $event = [pscustomobject]@{
         eventId = $guid;
@@ -31,10 +30,7 @@ function Get-EsCommitEvent {
         data = $commit
     }
 
-    $result += $event
- 
-    
-    ConvertTo-Json $result -Depth 6
+    $event    
 }
 
 function Get-LinkHeader {

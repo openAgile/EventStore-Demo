@@ -28,24 +28,26 @@ function Get-CommitsLinks {
 
 function Import-FullCommits {
     param($links)
+
+    $commitsEvents = @()
     
     for($i = ($links.Length -1); $i -gt -1; $i--) {
         $currentUrl = Get-AccesToken ($links[$i]) $accessToken
         $response = Invoke-WebRequest -Uri $currentUrl
 
         $commit = ConvertFrom-Json $response.Content        
-        $esCommit = Get-EsCommitEvent $commit
-
-        $auth = Get-AuthorizationHeader
-        $headers = @{
-            "Accept" =  "application/json";
-            "Content-Type" = "application/vnd.eventstore.events+json";
-            "Content-Length" =  $esEvents.Length;
-            "Authorization" = $auth
-        }
-
-        Invoke-WebRequest -Body $esCommit -Uri $eventStore -Method Post -Headers $headers
+        $commitsEvents += Get-EsCommitEvent $commit        
     }
+
+    $events = ConvertTo-Json $commitsEvents -Depth 6
+    $auth = Get-AuthorizationHeader
+    $headers = @{
+        "Accept" =  "application/json";
+        "Content-Type" = "application/vnd.eventstore.events+json";
+        "Content-Length" =  $esEvents.Length;
+        "Authorization" = $auth
+    }
+    Invoke-WebRequest -Body $events -Uri $eventStore -Method Post -Headers $headers
 
 }
 
