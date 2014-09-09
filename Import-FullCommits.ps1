@@ -1,28 +1,42 @@
-param($accessToken)
+﻿param($accessToken)
 
 . .\helpers.ps1
 
 $repoUrl = "https://api.github.com/repos/kunzimariano/CommitService.DemoRepo"
+$eventStore = 'http://127.0.0.1:2113/streams/github-events'
 
-
-function Import-FullCommits {
-    $url = "$repoUrl/commits?per_page=100&page=1"
-
-    if($accessToken -ne $null){
-        $url += "&access_token=$accessToken"
-    }
+function Get-CommitsLinks {
+    $currentUrl = "$repoUrl/commits?per_page=100&page=1"
+    $commitsUrls = @()
 
     do {
-        $response = Invoke-WebRequest -Uri $url
+        $currentUrl = Get-AccesToken $currentUrl $accessToken
+        $response = Invoke-WebRequest -Uri $currentUrl
+        
+        (ConvertFrom-Json $response.Content) | % {
+            $commitsUrls += $_.url
+        }
 
-        $eventStore = 'http://127.0.0.1:2113/streams/github-events'
-        $guid = ([guid]::NewGuid()).ToString()
+
+        $currentUrl = Get-NextLink $response.Headers
+        
+
+    } while($currentUrl -ne $null)
+
+    $commitsUrls
+}
+
+function Import-FullCommits {
+    param($links)
+    
+    for($i = ($links.Length -1); $i -gt -1; $i--) {
+        $currentUrl = Get-AccesToken ($links[$i]) $accessToken
+        $response = Invoke-WebRequest -Uri $currentUrl
+
+        $commit = ConvertFrom-Json $response.Content        
+        $esCommit = Get-EsCommitEvent $commit
+
         $auth = Get-AuthorizationHeader
-
-        $ghEvents = ConvertFrom-Json $response.Content
-        $links Get-CommitsLinks $ghEvents
-        $esEvents = Get-JsonEvents $ghEvents
-
         $headers = @{
             "Accept" =  "application/json";
             "Content-Type" = "application/vnd.eventstore.events+json";
@@ -30,11 +44,10 @@ function Import-FullCommits {
             "Authorization" = $auth
         }
 
-        Invoke-WebRequest -Body $esEvents -Uri $eventStore -Method Post -Headers $headers
+        Invoke-WebRequest -Body $esCommit -Uri $eventStore -Method Post -Headers $headers
+    }
 
-        $url = Get-NextLink $response.Headers
-
-    } while($url -ne $null)
 }
 
-Import-FullCommits
+    
+Import-FullCommits (Get-CommitsLinks)

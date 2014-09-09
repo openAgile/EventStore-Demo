@@ -5,10 +5,11 @@ function Get-AuthorizationHeader {
     $auth
 }
 
-function Get-JsonEvents {
+function Get-EStoreEvents {
     param($events)
     $result = @()
     $events | % {
+        $guid = ([guid]::NewGuid()).ToString()
         $e = [pscustomobject]@{
             eventId = $guid;
             eventType = 'github-event';
@@ -16,6 +17,23 @@ function Get-JsonEvents {
         }
         $result += $e
     }
+    ConvertTo-Json $result -Depth 6
+}
+
+function Get-EsCommitEvent {
+    param($commit)
+
+    $result = @()
+    $guid = ([guid]::NewGuid()).ToString()
+    $event = [pscustomobject]@{
+        eventId = $guid;
+        eventType = 'github-event';
+        data = $commit
+    }
+
+    $result += $event
+ 
+    
     ConvertTo-Json $result -Depth 6
 }
 
@@ -47,4 +65,19 @@ function Get-NextLink {
         }
     }
     $result
+}
+
+function Get-AccesToken {
+    param($url,$accessToken)
+
+    #ugly
+    if($accessToken -ne $null){
+        if($accessToken.Contains('?')) {
+            $url += "&access_token=$accessToken"
+        }
+        else{
+            $url += "?&access_token=$accessToken"   
+        }
+    }
+    $url
 }
