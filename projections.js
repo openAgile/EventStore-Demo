@@ -52,7 +52,8 @@ fromStream('github-events')
 }
 });
 
-// this does by-committer and at the same time keeps a list for the committers in the state
+// this does by-committer and at the same time 
+// keeps a list for the committers in the state
 fromStream('github-events')
 .whenAny(function(state, ev) {
     var committer = ev.data.commit.committer.name;
@@ -66,3 +67,27 @@ fromStream('github-events')
         state.committers[committer] = committer;
     }
 });
+
+// by-filename
+fromStream('github-events')
+    .whenAny(function(state, ev) {
+        var files = ev.data.files;
+        files.forEach(function(file) {
+            linkTo('filename-' + file.filename, ev);
+        });
+    });
+
+// committers-per-file
+fromCategory('filename')
+    .foreachStream()
+    .when({
+        "$init": function(state, ev) {
+            return { committers: {} };
+        },
+        "github-event": function(state, ev) {
+            var committer = ev.data.commit.committer.name;
+            if (!state.committers[committer]) {
+                state.committers[committer] = committer;
+            }
+        }
+    });
