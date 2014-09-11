@@ -91,3 +91,82 @@ fromCategory('filename')
             }
         }
     });
+
+// files modified, added, removed 
+// files-changes
+fromCategory('filename')
+    .foreachStream()
+    .when({
+        "$init": function(state, ev) {
+            return {
+                modified: 0,
+                added: 0,
+                removed: 0
+            };
+        },
+        "github-event": function(state, ev) {
+            var files = ev.data.files;
+            files.forEach(function(file) {
+                if (file.status == 'modified') {
+                    state.modified++;
+
+                } else if (file.status == 'removed') {
+                    state.removed++;
+
+                } else if (file.status == 'added') {
+                    state.added++;
+                }
+
+            });
+
+        }
+    });
+
+// files-stats-by-asset
+fromCategory('asset')
+    .foreachStream()
+    .when({
+        "$init": function(state, ev) {
+            return {
+                modified: 0,
+                added: 0,
+                removed: 0
+            };
+        },
+        "github-event": function(state, ev) {
+            var files = ev.data.files;
+            files.forEach(function(file) {
+                if (file.status == 'modified') {
+                    state.modified++;
+
+                } else if (file.status == 'removed') {
+                    state.removed++;
+
+                } else if (file.status == 'added') {
+                    state.added++;
+                }
+
+            });
+
+        }
+    });
+
+//files-by-asset
+fromCategory('asset')
+    .foreachStream()
+    .when({
+        "$init": function(state, ev) {
+            return {
+                changedFiles: {}
+            };
+        },
+        "github-event": function(state, ev) {
+            var files = ev.data.files;
+            files.forEach(function(f) {
+                if (!state.changedFiles[f.filename]) {
+                    state.changedFiles[f.filename] = f.filename;
+                }
+            });
+
+        }
+    });
