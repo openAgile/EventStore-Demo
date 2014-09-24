@@ -5,5 +5,6 @@ $v1url = "https://s3.amazonaws.com/versionone-chocolatey/VersionOne.Setup-Ultima
 $installerPath = "$tempPath\VersionOne.Setup-Ultimate-14.3.0.18-cs.exe"
 Invoke-WebRequest $v1url -OutFile $installerPath
 cd $tempPath
-.\VersionOne.Setup-Ultimate-14.3.0.18-cs.exe -Quiet:2 -LogFile:C:\log\log.log
+cinst VersionOne -source https://www.myget.org/F/versionone/
+# .\VersionOne.Setup-Ultimate-14.3.0.18-cs.exe -Quiet:2 -LogFile:C:\log\log.log
 # iex "& '$installerPath' -Quiet:2 -LogFile:C:\log\log.log"
