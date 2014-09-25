@@ -52,7 +52,7 @@ $secpwd = ConvertTo-SecureString $vm_password -AsPlainText -Force
 $credential = New-Object System.Management.Automation.PSCredential($vm_username, $secpwd)
 
 echo "Connecting to $uri"
-cd ..\EventStore-Demo
+cd EventStore-Demo
 Invoke-Command `
 -ConnectionUri $uri.ToString() `
 -Credential $credential `
