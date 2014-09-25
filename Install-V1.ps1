@@ -1,5 +1,4 @@
-Param(
-    [string]$uri)
+
 
 cuninst CommitStreamVersionOne
 cinst CommitStreamVersionOne -source https://www.myget.org/F/versionone/
@@ -9,8 +8,7 @@ iisreset
 
 
 Invoke-WebRequest `
-		    -Uri $uri `
-		    -Headers @{"Authorization" = "Basic "+[System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes($staging.username+":"+$staging.password ))} `
-		    -Method Put `
-		    -InFile $productFile `
+		    -Uri $args[0] `
+		    -Headers @{"Authorization" = "Basic "+[System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes("admin:admin" ))} `
+		    -Method Post `
 		    -Body '<Asset><Attribute name="Name" act="set">Hello world!</Attribute></Asset>'
