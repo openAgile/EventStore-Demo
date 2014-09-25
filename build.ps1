@@ -39,6 +39,7 @@ cd VersionOne.ChocolateyPackage
 $url="https://s3.amazonaws.com/versionone-chocolatey/VersionOne.Setup-Ultimate-#version#.cs.exe"
 $feature="CommitStreamVersionOne"
 
+cd EventStore-Demo
 .\build.ps1 $version $url $feature
 
 cd $Env:WORKSPACE
