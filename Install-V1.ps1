@@ -11,4 +11,5 @@ Invoke-WebRequest `
 		    -Uri "http://v1commitstream.cloudapp.net/VersionOne/rest-1.v1/Data/Story" `
 		    -Headers @{"Authorization" = "Basic "+[System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes("admin:admin" ))} `
 		    -Method Post `
-		    -Body '<Asset><Attribute name="Name" act="set">Hello world!</Attribute></Asset>'
+		    -Body '<Asset><Attribute name="Name" act="set">Hello world!</Attribute><Relation name="Scope" act="set"><Asset idref="Scope:0"/></Relation>
+</Asset>'
