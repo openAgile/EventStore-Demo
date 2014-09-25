@@ -57,5 +57,5 @@ Invoke-Command `
 -ConnectionUri $uri.ToString() `
 -Credential $credential `
 -FilePath $scriptPath
--ArgumentList 'http://v1commitstream.cloudapp.net/VersionOne/rest-1.v1/Data/Story/'
+
 
